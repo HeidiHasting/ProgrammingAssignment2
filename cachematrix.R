@@ -8,42 +8,54 @@
 
 ## makeCacheMatrix function is designed provide getter and setter functions for storing a matrix
 makeCacheMatrix <- function(x = matrix()) {
-        theMatrixCached <- NULL
+        theMatrixCached <- NULL ## define theMatrixCached
         
         ## Store the inversed matrix
-        set <- function(y) {
+        setMatrix <- function(y) {
                 x <<- y ## This is to store the original matrix for reference
                 theMatrixCached <<- NULL ## This is to setup the inverse matrix storage
         }
         
         ## Return the matrix
-        get <- function() x
+        getMatrix <- function() x
         
-        setsolve <- function(inversedMatrix) theMatrixCached <<- inversedMatrix
+        ## Update the stored inverse matrix
+        setInverseMatrix <- function(inversedMatrix) {
+                theMatrixCached <<- inversedMatrix      
+        } 
         
         ## Return the inversed matrix. This will be the inversed value if cached otherwise null
-        getsolve <- function() theMatrixCached
+        getInverseMatrix <- function() {
+                theMatrixCached
+        }
         
-        list(set = set, get = get,
-             setsolve = setsolve,
-             getsolve = getsolve)
+        ## list of getters and setters
+        list(setMatrix = setMatrix
+             , getMatrix = getMatrix
+             , setInverseMatrix = setInverseMatrix
+             , getInverseMatrix = getInverseMatrix
+             )
 }
 
-##cacheSolve function is designed to take a makeCacheMatrix
+##cacheSolve function is designed to take a makeCacheMatrix object/functions and use it to work out
+## if the matrix used to create makeCacheMatrix has been inversed previously and if it has
+## get it from storage otherwise invert the matrix and store for later use
+## requires makeCacheMatrix value to be passed in
 cacheSolve <- function(x) {
         
         ##Get the inversed matrix if it has been inversed previously otherwise null
-        m <- x$getsolve()
+        iMatrix <- x$getInverseMatrix()
         
         ## Check if there is already an inverse of the matrix and if there is return it
-        if(!is.null(m)) {
-                message("getting cached data")
-                return(m)
+        if(!is.null(iMatrix)) {
+                message("DEBUG: inverse matrix was cached previously returning that")
+                return(iMatrix) ## return the inverted matrix
         }
         
         ## There is not already an inverse copy of the matrix, inverse the matrix and store it for later reuse
-        data <- x$get()
-        m <- solve(data) ## invert the matrix
-        x$setsolve(m) ## store for later reuse
-        m ## return the inversed matrix
+        message("DEBUG: inverse matrix not previously worked out, creating inverse and storing for later use")
+        data <- x$getMatrix()
+        iMatrix <- solve(data) ## invert the matrix
+        x$setInverseMatrix(iMatrix) ## store for later reuse
+        iMatrix ## return the inversed matrix
 }
